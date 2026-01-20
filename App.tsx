@@ -7,7 +7,7 @@ import {
   Lock, Download, Mail, UserCheck, LogIn
 } from 'lucide-react';
 import { Tool, Category, User as UserType, Member, View } from './types';
-import { INITIAL_CATEGORIES, INITIAL_TOOLS } from './constants';
+import { INITIAL_CATEGORIES, INITIAL_TOOLS, APP_VERSION } from './constants';
 
 const App: React.FC = () => {
   // State
@@ -23,31 +23,69 @@ const App: React.FC = () => {
   const [currentUser, setCurrentUser] = useState<UserType | null>(null);
   const [currentMember, setCurrentMember] = useState<Member | null>(null);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+  const [isInitialized, setIsInitialized] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
-  // Persistence
+  // Persistence & Versioning (Initialization)
   useEffect(() => {
-    const savedTools = localStorage.getItem('osint_tools');
-    const savedCategories = localStorage.getItem('osint_categories');
-    const savedUsers = localStorage.getItem('osint_users');
-    const savedMembers = localStorage.getItem('osint_members');
+    const savedToolsRaw = localStorage.getItem('osint_tools');
+    const savedCategoriesRaw = localStorage.getItem('osint_categories');
+    const savedUsersRaw = localStorage.getItem('osint_users');
+    const savedMembersRaw = localStorage.getItem('osint_members');
+    const savedVersion = localStorage.getItem('osint_version');
 
-    if (savedTools) setTools(JSON.parse(savedTools));
-    else setTools(INITIAL_TOOLS);
+    let finalTools: Tool[] = savedToolsRaw ? JSON.parse(savedToolsRaw) : INITIAL_TOOLS;
+    let finalCategories: Category[] = savedCategoriesRaw ? JSON.parse(savedCategoriesRaw) : INITIAL_CATEGORIES;
 
-    if (savedCategories) setCategories(JSON.parse(savedCategories));
-    else setCategories(INITIAL_CATEGORIES);
+    // Smart Merge: If version changed or first load, merge new defaults into saved state
+    if (savedVersion !== APP_VERSION) {
+      // Add missing categories from defaults
+      INITIAL_CATEGORIES.forEach(defaultCat => {
+        if (!finalCategories.find(c => c.id === defaultCat.id)) {
+          finalCategories.push(defaultCat);
+        }
+      });
 
-    if (savedUsers) setUsers(JSON.parse(savedUsers));
+      // Add missing tools from defaults
+      INITIAL_TOOLS.forEach(defaultTool => {
+        if (!finalTools.find(t => t.id === defaultTool.id)) {
+          finalTools.push(defaultTool);
+        }
+      });
+
+      localStorage.setItem('osint_version', APP_VERSION);
+    }
+
+    setTools(finalTools);
+    setCategories(finalCategories);
+    
+    if (savedUsersRaw) setUsers(JSON.parse(savedUsersRaw));
     else setUsers([{ id: '1', username: 'Admin', password: 'baseti123456', role: 'admin' }]);
 
-    if (savedMembers) setMembers(JSON.parse(savedMembers));
+    if (savedMembersRaw) setMembers(JSON.parse(savedMembersRaw));
+    
+    setIsInitialized(true);
+    console.log(`Base TI OSINT v${APP_VERSION} inicializada.`);
   }, []);
 
-  useEffect(() => { localStorage.setItem('osint_tools', JSON.stringify(tools)); }, [tools]);
-  useEffect(() => { localStorage.setItem('osint_categories', JSON.stringify(categories)); }, [categories]);
-  useEffect(() => { localStorage.setItem('osint_users', JSON.stringify(users)); }, [users]);
-  useEffect(() => { localStorage.setItem('osint_members', JSON.stringify(members)); }, [members]);
+  // Sync state back to localStorage ONLY after initialization to prevent overwriting with empty defaults
+  useEffect(() => { if (isInitialized) localStorage.setItem('osint_tools', JSON.stringify(tools)); }, [tools, isInitialized]);
+  useEffect(() => { if (isInitialized) localStorage.setItem('osint_categories', JSON.stringify(categories)); }, [categories, isInitialized]);
+  useEffect(() => { if (isInitialized) localStorage.setItem('osint_users', JSON.stringify(users)); }, [users, isInitialized]);
+  useEffect(() => { if (isInitialized) localStorage.setItem('osint_members', JSON.stringify(members)); }, [members, isInitialized]);
+
+  // Sync across tabs
+  useEffect(() => {
+    const handleStorageChange = (e: StorageEvent) => {
+      if (!e.key) return;
+      if (e.key === 'osint_tools') setTools(JSON.parse(e.newValue || '[]'));
+      if (e.key === 'osint_categories') setCategories(JSON.parse(e.newValue || '[]'));
+      if (e.key === 'osint_users') setUsers(JSON.parse(e.newValue || '[]'));
+      if (e.key === 'osint_members') setMembers(JSON.parse(e.newValue || '[]'));
+    };
+    window.addEventListener('storage', handleStorageChange);
+    return () => window.removeEventListener('storage', handleStorageChange);
+  }, []);
 
   // Derived state
   const filteredTools = useMemo(() => {
@@ -79,7 +117,6 @@ const App: React.FC = () => {
 
   // Mock Google Social Login
   const handleGoogleLogin = () => {
-    // In a real app, this would trigger the Google Auth SDK
     const mockName = prompt("Simulação Google Login: Digite seu Nome Completo:");
     const mockEmail = prompt("Simulação Google Login: Digite seu E-mail:");
 
@@ -98,7 +135,7 @@ const App: React.FC = () => {
         setCurrentMember(newMember);
       }
       setIsMemberLoggedIn(true);
-      alert(`Bem-vindo, ${mockName}! Você agora tem acesso à Área de Membros.`);
+      alert(`Bem-vindo, ${mockName}!`);
     }
   };
 
@@ -121,8 +158,7 @@ const App: React.FC = () => {
         content += `${m.id},"${m.name}",${m.email},${m.joinedAt}\n`;
       });
     } else {
-      content = "RELATÓRIO DE MEMBROS - BASE TI OSINT\n";
-      content += "====================================\n\n";
+      content = "RELATÓRIO DE MEMBROS - BASE TI OSINT\n====================================\n\n";
       members.forEach(m => {
         content += `Membro: ${m.name}\nEmail: ${m.email}\nDesde: ${m.joinedAt}\n--------------------\n`;
       });
@@ -137,9 +173,9 @@ const App: React.FC = () => {
     URL.revokeObjectURL(url);
   };
 
-  // CRUD Handlers (Tools & Categories)
+  // CRUD Handlers
   const addTool = (tool: Omit<Tool, 'id'>) => {
-    const newTool = { ...tool, id: 'tool-' + Date.now().toString().slice(-6) + Math.random().toString(36).substr(2, 4) };
+    const newTool = { ...tool, id: 'tool-' + Date.now() + Math.random().toString(36).substr(2, 4) };
     setTools(prev => [...prev, newTool]);
   };
 
@@ -148,32 +184,50 @@ const App: React.FC = () => {
   const addCategory = (name: string): string => {
     const existing = categories.find(c => c.name.toLowerCase() === name.toLowerCase());
     if (existing) return existing.id;
-    const newId = 'cat-' + Date.now().toString().slice(-6) + Math.random().toString(36).substr(2, 4);
+    const newId = 'cat-' + Date.now();
     setCategories(prev => [...prev, { id: newId, name }]);
     return newId;
   };
 
   const removeCategory = (id: string) => {
-    if (confirm('Atenção: Remover esta categoria excluirá também todas as ferramentas associadas. Continuar?')) {
+    if (confirm('Atenção: Remover esta categoria excluirá ferramentas associadas.')) {
       setCategories(categories.filter(c => c.id !== id));
       setTools(tools.filter(t => t.categoryId !== id));
     }
   };
 
-  // CRUD Handlers (Users/Operators)
-  const addUser = (username: string, p: string, role: 'admin' | 'user') => {
-    if (users.find(u => u.username === username)) return alert('Usuário já existe!');
-    setUsers([...users, { id: Date.now().toString(), username, password: p, role }]);
-  };
-
-  const removeUser = (id: string) => {
-    const user = users.find(u => u.id === id);
-    if (user?.username === 'Admin' || user?.id === currentUser?.id) return alert('Impossível remover este usuário agora.');
-    if (confirm(`Remover usuário ${user?.username}?`)) setUsers(users.filter(u => u.id !== id));
+  // User Management Handlers (Fix for missing addUser, updateUser, removeUser)
+  const addUser = (username: string, password: string, role: 'admin' | 'user') => {
+    const newUser: UserType = { 
+      id: 'usr-' + Date.now() + Math.random().toString(36).substr(2, 4), 
+      username, 
+      password, 
+      role 
+    };
+    setUsers(prev => [...prev, newUser]);
   };
 
   const updateUser = (id: string, updates: Partial<UserType>) => {
-    setUsers(users.map(u => u.id === id ? { ...u, ...updates } : u));
+    setUsers(prev => prev.map(u => u.id === id ? { ...u, ...updates } : u));
+  };
+
+  const removeUser = (id: string) => {
+    if (users.length <= 1) {
+      alert('Não é possível remover o único operador do sistema.');
+      return;
+    }
+    if (confirm('Deseja realmente remover este operador?')) {
+      setUsers(prev => prev.filter(u => u.id !== id));
+    }
+  };
+
+  const resetToFactory = () => {
+    if (confirm('Deseja resetar TUDO para as ferramentas de fábrica?')) {
+      setTools(INITIAL_TOOLS);
+      setCategories(INITIAL_CATEGORIES);
+      localStorage.setItem('osint_version', APP_VERSION);
+      alert('Sistema restaurado.');
+    }
   };
 
   // Import Handler
@@ -194,11 +248,11 @@ const App: React.FC = () => {
           const [catName, toolName, toolUrl] = parts.map(p => p.replace(/"/g, '').trim());
           let catId = tempCategories.find(c => c.name.toLowerCase() === catName.toLowerCase())?.id;
           if (!catId) {
-            catId = 'cat-' + Date.now();
+            catId = 'cat-' + Date.now() + index;
             tempCategories.push({ id: catId, name: catName });
           }
           newTools.push({
-            id: 'tool-' + Date.now() + index,
+            id: 'tool-imp-' + Date.now() + index,
             categoryId: catId,
             name: toolName,
             description: 'Importado',
@@ -226,7 +280,7 @@ const App: React.FC = () => {
               Base TI <span className="text-sky-400">- OSINT</span>
             </h1>
             <span className="text-[10px] text-slate-500 font-bold uppercase tracking-widest block -mt-1">
-              Terminal de Operações
+              Terminal de Operações v{APP_VERSION}
             </span>
           </div>
         </a>
@@ -316,7 +370,7 @@ const App: React.FC = () => {
               <div className="p-6 md:p-8">
                 <div className="flex items-center gap-4 mb-6 border-b border-slate-800 pb-4">
                   <Filter className="w-4 h-4 text-sky-500" />
-                  <h3 className="text-xs font-bold text-slate-300 uppercase tracking-widest">Categorias Inteligentes</h3>
+                  <h3 className="text-xs font-bold text-slate-300 uppercase tracking-widest">Explorar Ativos</h3>
                 </div>
                 <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-7 gap-3">
                   <button onClick={() => setActiveCategory('all')} className={`px-3 py-2.5 rounded-xl text-[10px] md:text-xs font-bold transition-all border flex items-center justify-between gap-2 ${activeCategory === 'all' ? 'bg-sky-500 text-white border-sky-400 shadow-lg shadow-sky-500/20' : 'bg-slate-900/30 border-slate-800 text-slate-400 hover:border-slate-700 hover:text-slate-200'}`}>
@@ -350,6 +404,11 @@ const App: React.FC = () => {
                   <a href={tool.url} target="_blank" rel="noopener noreferrer" className="w-full text-center py-2.5 bg-slate-800/50 hover:bg-sky-500 rounded-xl text-[10px] font-bold uppercase tracking-widest transition-all border border-slate-700">Acessar</a>
                 </div>
               ))}
+              {filteredTools.length === 0 && (
+                <div className="col-span-full py-20 text-center">
+                  <p className="text-slate-500 font-bold uppercase tracking-widest">Nenhuma ferramenta encontrada para esta busca.</p>
+                </div>
+              )}
             </div>
           </>
         )}
@@ -386,12 +445,12 @@ const App: React.FC = () => {
             <header className="flex flex-col md:flex-row md:items-center justify-between gap-6 border-b border-slate-800 pb-8">
               <div>
                 <h2 className="text-4xl font-extrabold tracking-tighter">Gestão de <span className="text-sky-500">Operações</span></h2>
-                <p className="text-slate-400 mt-1">Terminal de controle centralizado</p>
+                <p className="text-slate-400 mt-1">Sincronizado v{APP_VERSION}</p>
               </div>
               <div className="flex flex-wrap gap-3">
                 <input type="file" ref={fileInputRef} onChange={handleImport} accept=".csv,.txt" className="hidden" />
                 <button onClick={() => fileInputRef.current?.click()} className="flex items-center gap-2 bg-emerald-600 hover:bg-emerald-700 text-white px-5 py-2.5 rounded-xl font-bold text-sm transition-all"><Upload className="w-4 h-4" /> Importar</button>
-                <button onClick={() => { setTools(INITIAL_TOOLS); setCategories(INITIAL_CATEGORIES); }} className="flex items-center gap-2 bg-slate-800 hover:bg-slate-700 text-slate-300 px-5 py-2.5 rounded-xl font-bold text-sm transition-all"><RotateCcw className="w-4 h-4" /> Resetar</button>
+                <button onClick={resetToFactory} className="flex items-center gap-2 bg-slate-800 hover:bg-slate-700 text-slate-300 px-5 py-2.5 rounded-xl font-bold text-sm transition-all"><RotateCcw className="w-4 h-4" /> Resetar Fábrica</button>
               </div>
             </header>
 
@@ -404,7 +463,7 @@ const App: React.FC = () => {
                   </div>
                   <div>
                     <h3 className="text-xl font-bold">Diretório de Membros</h3>
-                    <p className="text-xs text-slate-500">Usuários registrados via login social</p>
+                    <p className="text-xs text-slate-500">Registros via login social</p>
                   </div>
                 </div>
                 <div className="flex gap-2">
@@ -435,14 +494,13 @@ const App: React.FC = () => {
                       </tr>
                     ))}
                     {members.length === 0 && (
-                      <tr><td colSpan={4} className="py-8 text-center text-slate-600 italic">Nenhum membro registrado no momento.</td></tr>
+                      <tr><td colSpan={4} className="py-8 text-center text-slate-600 italic">Nenhum membro registrado.</td></tr>
                     )}
                   </tbody>
                 </table>
               </div>
             </section>
 
-            {/* Existing Tool Management Grid */}
             <div className="grid grid-cols-1 xl:grid-cols-2 gap-12">
                {/* Operators Section */}
               <section className="glass p-8 rounded-[2rem] xl:col-span-2">
@@ -482,7 +540,7 @@ const App: React.FC = () => {
               {/* Ativos */}
               <section className="glass p-8 rounded-[2rem] xl:col-span-2">
                 <div className="flex justify-between items-center mb-10">
-                  <h3 className="text-xl font-bold flex items-center gap-2"><Settings className="w-5 h-5 text-sky-400" /> Ativos</h3>
+                  <h3 className="text-xl font-bold flex items-center gap-2"><Settings className="w-5 h-5 text-sky-400" /> Ativos ({tools.length})</h3>
                   <button onClick={() => { const n = prompt('Nome:'); const d = prompt('Desc:'); const u = prompt('URL:'); const c = prompt('Cat ID:'); if(n&&d&&u&&c) addTool({name:n,description:d,url:u,categoryId:c}); }} className="bg-sky-500 hover:bg-sky-600 px-6 py-3 rounded-2xl font-black text-xs uppercase transition-all">Novo Ativo</button>
                 </div>
                 <div className="overflow-x-auto">
@@ -511,12 +569,11 @@ const App: React.FC = () => {
         <div className="flex flex-col items-center gap-8">
           <p className="text-slate-500 text-xs font-bold uppercase tracking-widest max-w-lg">
             Inteligência de Fontes Abertas & Monitoramento de Riscos Digitais. 
-            © 2024 Terminal Central de Operações.
+            © 2024 Terminal Central de Operações. v{APP_VERSION}
           </p>
 
           <div className="h-px w-20 bg-slate-900"></div>
 
-          {/* Moved Painel Button to Footer */}
           {!isLoggedIn ? (
             <button 
               onClick={() => setView('admin-login')} 

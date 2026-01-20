@@ -1,6 +1,8 @@
 
 import { Tool, Category } from './types';
 
+export const APP_VERSION = '1.0.1'; // Incrementar sempre que houver novas ferramentas oficiais
+
 export const INITIAL_CATEGORIES: Category[] = [
   { id: 'cat-tel', name: 'Telefone' },
   { id: 'cat-mail', name: 'E-mail' },
