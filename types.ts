@@ -22,8 +22,10 @@ export interface User {
 export interface Member {
   id: string;
   name: string;
+  username: string;
   email: string;
+  password?: string;
   joinedAt: string;
 }
 
-export type View = 'home' | 'admin-login' | 'admin-panel' | 'member-area';
+export type View = 'home' | 'admin-login' | 'admin-panel' | 'member-auth';
