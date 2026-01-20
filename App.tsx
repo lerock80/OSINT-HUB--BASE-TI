@@ -138,8 +138,8 @@ const App: React.FC = () => {
             <Shield className="w-6 h-6 text-white" />
           </div>
           <div>
-            <h1 className="text-xl font-bold text-white group-hover:text-sky-400 transition-colors">Base TI <span className="text-sky-400">- OSINT</span></h1>
-            <span className="text-[10px] text-slate-500 font-bold uppercase tracking-widest block -mt-1">v{APP_VERSION}</span>
+            <h1 className="text-xl font-bold text-white group-hover:text-sky-400 transition-colors">OSINT <span className="text-sky-400">Terminal</span></h1>
+            <span className="text-[10px] text-slate-500 font-bold uppercase tracking-widest block -mt-1">Terminal Operacional de Inteligência</span>
           </div>
         </div>
 
@@ -176,7 +176,8 @@ const App: React.FC = () => {
         {view === 'home' && (
           <>
             <section className="text-center mb-10">
-              <h2 className="text-5xl md:text-6xl font-extrabold mb-4 neon-text tracking-tighter">OSINT <span className="text-sky-500">Hub</span></h2>
+              <h2 className="text-5xl md:text-6xl font-extrabold mb-4 neon-text tracking-tighter">OSINT <span className="text-sky-500">Terminal</span></h2>
+              <p className="text-slate-500 font-bold uppercase tracking-[0.2em] text-sm">Terminal Operacional de Inteligência</p>
               <div className="max-w-2xl mx-auto relative group mt-8">
                 <Search className="absolute left-5 top-1/2 -translate-y-1/2 text-slate-500 group-focus-within:text-sky-400 transition-colors w-5 h-5" />
                 <input 
@@ -226,7 +227,7 @@ const App: React.FC = () => {
             <div className="glass p-8 md:p-10 rounded-[2.5rem] border border-sky-500/20 shadow-2xl">
               <div className="text-center mb-10">
                 <h2 className="text-3xl font-bold mb-2">{memberAuthMode === 'login' ? 'Área de Membros' : 'Novo Cadastro'}</h2>
-                <p className="text-slate-500 text-sm">Acesse o ecossistema Base TI</p>
+                <p className="text-slate-500 text-sm">Acesse o ecossistema OSINT Terminal</p>
               </div>
 
               {memberAuthMode === 'login' ? (
@@ -377,7 +378,7 @@ const App: React.FC = () => {
 
       {/* Footer */}
       <footer className="py-12 border-t border-slate-900/50 text-center bg-slate-950/50">
-        <p className="text-slate-600 text-[10px] font-black uppercase tracking-[0.3em] mb-4">Base TI OSINT Platform</p>
+        <p className="text-slate-600 text-[10px] font-black uppercase tracking-[0.3em] mb-4">OSINT Terminal Platform</p>
         {!isLoggedIn ? (
           <button onClick={() => setView('admin-login')} className="text-slate-700 hover:text-sky-500 transition-colors text-[10px] font-bold uppercase tracking-widest"><Lock className="w-3 h-3 inline mr-2" /> Acesso Restrito</button>
         ) : (
