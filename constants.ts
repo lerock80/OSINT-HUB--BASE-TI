@@ -1,9 +1,23 @@
 
 import { Tool, Category } from './types';
 
-export const APP_VERSION = '1.0.1'; // Incrementar sempre que houver novas ferramentas oficiais
+export const APP_VERSION = '1.0.2'; // Incrementado para aplicar reordenação de categorias
 
 export const INITIAL_CATEGORIES: Category[] = [
+  // Brasil no topo
+  { id: 'cat-br-doc', name: 'Brasil - Documentos' },
+  { id: 'cat-br-soc', name: 'Brasil - Redes Sociais' },
+  { id: 'cat-br-tel', name: 'Brasil - Telefone' },
+  { id: 'cat-br-mail', name: 'Brasil - E-mail' },
+  { id: 'cat-br-com', name: 'Brasil - Comercial' },
+  { id: 'cat-br-geo', name: 'Brasil - Geolocalização' },
+  { id: 'cat-br-imo', name: 'Brasil - Imóveis' },
+  { id: 'cat-br-jur', name: 'Brasil - Jurídico' },
+  { id: 'cat-br-fin', name: 'Brasil - Financeiro' },
+  { id: 'cat-br-sec', name: 'Brasil - Segurança' },
+  { id: 'cat-br-tr', name: 'Brasil - Transparência' },
+  
+  // Demais categorias
   { id: 'cat-tel', name: 'Telefone' },
   { id: 'cat-mail', name: 'E-mail' },
   { id: 'cat-social', name: 'Redes Sociais' },
@@ -23,18 +37,7 @@ export const INITIAL_CATEGORIES: Category[] = [
   { id: 'cat-transp', name: 'Transparência' },
   { id: 'cat-gen', name: 'Geradores' },
   { id: 'cat-plat', name: 'Plataformas Integradas' },
-  { id: 'cat-adv', name: 'Busca Avançada' },
-  { id: 'cat-br-doc', name: 'Brasil - Documentos' },
-  { id: 'cat-br-soc', name: 'Brasil - Redes Sociais' },
-  { id: 'cat-br-tel', name: 'Brasil - Telefone' },
-  { id: 'cat-br-mail', name: 'Brasil - E-mail' },
-  { id: 'cat-br-com', name: 'Brasil - Comercial' },
-  { id: 'cat-br-geo', name: 'Brasil - Geolocalização' },
-  { id: 'cat-br-imo', name: 'Brasil - Imóveis' },
-  { id: 'cat-br-jur', name: 'Brasil - Jurídico' },
-  { id: 'cat-br-fin', name: 'Brasil - Financeiro' },
-  { id: 'cat-br-sec', name: 'Brasil - Segurança' },
-  { id: 'cat-br-tr', name: 'Brasil - Transparência' }
+  { id: 'cat-adv', name: 'Busca Avançada' }
 ];
 
 export const INITIAL_TOOLS: Tool[] = [
@@ -147,7 +150,7 @@ export const INITIAL_TOOLS: Tool[] = [
   { id: 'tw1', categoryId: 'cat-tw', name: 'Twitter ID Finder', description: 'Conversor de username para ID numérico.', url: 'https://twiteridfinder.com/' },
   { id: 'tw2', categoryId: 'cat-tw', name: 'Twint', description: 'Busca de tweets sem limitação de API.', url: 'https://github.com/twintproject/twint' },
   { id: 'tw3', categoryId: 'cat-tw', name: 'X2Twitter', description: 'Salvar mídias e conteúdo da plataforma X.', url: 'https://x2twitter.com/es/download-twitter-photo' },
-  { id: 'tw4', categoryId: 'cat-tw', name: 'Getfvid X', description: 'Downloader de vídeos para Twitter.', url: 'https://www.getfvid.com/es/twitter' },
+  { id: 'tw4', categoryId: 'cat-tw', name: 'Getfvid X', description: 'Salvar mídias e conteúdo da plataforma X.', url: 'https://www.getfvid.com/es/twitter' },
   { id: 'tw5', categoryId: 'cat-tw', name: 'Tweetdeck', description: 'Painel de monitoramento profissional.', url: 'https://create.twitter.com/es/products/tweetdeck' },
 
   // 83-85: TikTok
