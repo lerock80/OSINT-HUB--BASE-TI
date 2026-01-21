@@ -130,16 +130,21 @@ const App: React.FC = () => {
   };
 
   return (
-    <div className="min-h-screen flex flex-col">
+    <div className="min-h-screen flex flex-col bg-slate-950">
       {/* Header */}
-      <nav className="glass sticky top-0 z-50 px-6 py-4 flex items-center justify-between border-b border-sky-900/50">
+      <nav className="glass sticky top-0 z-50 px-6 py-4 flex items-center justify-between border-b border-sky-900/50 shadow-xl">
         <div onClick={() => setView('home')} className="flex items-center gap-3 cursor-pointer group">
-          <div className="p-2 bg-sky-500 rounded-lg group-hover:scale-110 transition-transform">
-            <Shield className="w-6 h-6 text-white" />
-          </div>
-          <div>
-            <h1 className="text-xl font-bold text-white group-hover:text-sky-400 transition-colors">Base TI <span className="text-sky-400">- OSINT</span></h1>
-            <span className="text-[10px] text-slate-500 font-bold uppercase tracking-widest block -mt-1">v{APP_VERSION}</span>
+          {/* Logo Placeholder (Based on user request to replace text with logo) */}
+          <div className="h-10 md:h-12 w-auto flex items-center">
+            <img 
+              src="https://raw.githubusercontent.com/google/aistudio/main/examples/logo.png" 
+              alt="Base TI Logo" 
+              className="h-full w-auto object-contain brightness-110 group-hover:scale-105 transition-transform duration-300"
+              onError={(e) => {
+                 e.currentTarget.style.display = 'none';
+                 e.currentTarget.parentElement!.innerHTML = '<div class="p-2 bg-red-600 rounded-lg"><span class="text-white font-black text-xl">BASE TI</span></div>';
+              }}
+            />
           </div>
         </div>
 
@@ -176,8 +181,14 @@ const App: React.FC = () => {
         {view === 'home' && (
           <>
             <section className="text-center mb-10">
-              <h2 className="text-5xl md:text-6xl font-extrabold mb-4 neon-text tracking-tighter">OSINT <span className="text-sky-500">Hub</span></h2>
-              <div className="max-w-2xl mx-auto relative group mt-8">
+              <h2 className="text-5xl md:text-6xl font-black mb-4 neon-text tracking-tighter">
+                OSINT <span className="text-sky-500">Terminal</span>
+              </h2>
+              <p className="text-slate-500 font-bold uppercase tracking-[0.25em] text-sm md:text-base">
+                Terminal Operacional de Inteligência
+              </p>
+              
+              <div className="max-w-2xl mx-auto relative group mt-10">
                 <Search className="absolute left-5 top-1/2 -translate-y-1/2 text-slate-500 group-focus-within:text-sky-400 transition-colors w-5 h-5" />
                 <input 
                   type="text" 
@@ -192,16 +203,16 @@ const App: React.FC = () => {
             <div className="glass border border-sky-900/30 mb-12 rounded-[2rem] p-6 md:p-8">
               <div className="flex items-center gap-4 mb-6 border-b border-slate-800 pb-4"><Filter className="w-4 h-4 text-sky-500" /><h3 className="text-xs font-bold text-slate-300 uppercase tracking-widest">Filtrar por Categoria</h3></div>
               <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-7 gap-3">
-                <button onClick={() => setActiveCategory('all')} className={`px-3 py-2.5 rounded-xl text-[10px] md:text-xs font-bold border flex items-center justify-between gap-2 transition ${activeCategory === 'all' ? 'bg-sky-500 text-white border-sky-400' : 'bg-slate-900/30 border-slate-800 text-slate-400 hover:text-slate-200'}`}><span>Todos</span><span className="opacity-60 bg-white/10 px-1.5 rounded">{tools.length}</span></button>
+                <button onClick={() => setActiveCategory('all')} className={`px-3 py-2.5 rounded-xl text-[10px] md:text-xs font-bold border flex items-center justify-between gap-2 transition ${activeCategory === 'all' ? 'bg-sky-500 text-white border-sky-400 shadow-lg shadow-sky-500/20' : 'bg-slate-900/30 border-slate-800 text-slate-400 hover:text-slate-200'}`}><span>Todos</span><span className="opacity-60 bg-white/10 px-1.5 rounded">{tools.length}</span></button>
                 {categories.map(cat => (
-                  <button key={cat.id} onClick={() => setActiveCategory(cat.id)} className={`px-3 py-2.5 rounded-xl text-[10px] md:text-xs font-bold border flex items-center justify-between gap-2 transition ${activeCategory === cat.id ? 'bg-sky-500 text-white border-sky-400' : 'bg-slate-900/30 border-slate-800 text-slate-400 hover:text-slate-200'}`}><span className="truncate">{cat.name}</span><span className="opacity-60 bg-white/10 px-1.5 rounded">{tools.filter(t => t.categoryId === cat.id).length}</span></button>
+                  <button key={cat.id} onClick={() => setActiveCategory(cat.id)} className={`px-3 py-2.5 rounded-xl text-[10px] md:text-xs font-bold border flex items-center justify-between gap-2 transition ${activeCategory === cat.id ? 'bg-sky-500 text-white border-sky-400 shadow-lg shadow-sky-500/20' : 'bg-slate-900/30 border-slate-800 text-slate-400 hover:text-slate-200'}`}><span className="truncate">{cat.name}</span><span className="opacity-60 bg-white/10 px-1.5 rounded">{tools.filter(t => t.categoryId === cat.id).length}</span></button>
                 ))}
               </div>
             </div>
 
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
               {filteredTools.map(tool => (
-                <div key={tool.id} className="glass p-6 rounded-2xl flex flex-col group hover:border-sky-500/50 transition-all hover:-translate-y-2">
+                <div key={tool.id} className="glass p-6 rounded-2xl flex flex-col group hover:border-sky-500/50 transition-all hover:-translate-y-2 hover:shadow-2xl hover:shadow-sky-500/10">
                   <div className="flex items-start justify-between mb-4">
                     <span className="text-[10px] font-bold px-2.5 py-1 bg-sky-950/50 text-sky-400 rounded-lg border border-sky-500/20 uppercase truncate max-w-[150px]">{categories.find(c => c.id === tool.categoryId)?.name || 'Geral'}</span>
                     <ExternalLink className="w-4 h-4 text-slate-600 group-hover:text-sky-400" />
@@ -210,7 +221,7 @@ const App: React.FC = () => {
                     href={tool.url} 
                     target="_blank" 
                     rel="noopener noreferrer" 
-                    className="text-lg font-bold mb-2 text-white hover:text-sky-400 transition-colors inline-block"
+                    className="text-lg font-bold mb-2 text-white group-hover:text-sky-400 transition-colors inline-block"
                   >
                     {tool.name}
                   </a>
@@ -226,7 +237,7 @@ const App: React.FC = () => {
             <div className="glass p-8 md:p-10 rounded-[2.5rem] border border-sky-500/20 shadow-2xl">
               <div className="text-center mb-10">
                 <h2 className="text-3xl font-bold mb-2">{memberAuthMode === 'login' ? 'Área de Membros' : 'Novo Cadastro'}</h2>
-                <p className="text-slate-500 text-sm">Acesse o ecossistema Base TI</p>
+                <p className="text-slate-500 text-sm">Acesse o ecossistema OSINT Terminal</p>
               </div>
 
               {memberAuthMode === 'login' ? (
@@ -238,7 +249,7 @@ const App: React.FC = () => {
                 }} className="space-y-4">
                   <input name="user" type="text" className="w-full bg-slate-950 border border-slate-800 rounded-xl p-4 text-white focus:border-sky-500 outline-none transition" placeholder="Usuário ou E-mail" required />
                   <input name="pass" type="password" className="w-full bg-slate-950 border border-slate-800 rounded-xl p-4 text-white focus:border-sky-500 outline-none transition" placeholder="Senha" required />
-                  <button type="submit" className="w-full bg-sky-500 hover:bg-sky-600 text-white font-bold py-4 rounded-xl transition-all">Acessar Terminal</button>
+                  <button type="submit" className="w-full bg-sky-500 hover:bg-sky-600 text-white font-bold py-4 rounded-xl transition-all shadow-lg shadow-sky-500/20">Acessar Terminal</button>
                   <button type="button" onClick={() => setMemberAuthMode('signup')} className="w-full text-sky-400 font-bold text-sm mt-4 hover:underline">Ainda não sou membro</button>
                 </form>
               ) : (
@@ -258,7 +269,7 @@ const App: React.FC = () => {
                   <input name="email" type="email" className="w-full bg-slate-950 border border-slate-800 rounded-xl p-3 text-white focus:border-sky-500 outline-none" placeholder="E-mail" required />
                   <input name="pass" type="password" className="w-full bg-slate-950 border border-slate-800 rounded-xl p-3 text-white focus:border-sky-500 outline-none" placeholder="Senha" required />
                   <input name="confirm" type="password" className="w-full bg-slate-950 border border-slate-800 rounded-xl p-3 text-white focus:border-sky-500 outline-none" placeholder="Repetir Senha" required />
-                  <button type="submit" className="w-full bg-emerald-500 hover:bg-emerald-600 text-white font-bold py-4 rounded-xl transition-all">Confirmar Cadastro</button>
+                  <button type="submit" className="w-full bg-emerald-500 hover:bg-emerald-600 text-white font-bold py-4 rounded-xl transition-all shadow-lg shadow-emerald-500/20">Confirmar Cadastro</button>
                   <button type="button" onClick={() => setMemberAuthMode('login')} className="w-full text-sky-400 font-bold text-sm mt-4 hover:underline">Já possuo cadastro</button>
                 </form>
               )}
@@ -274,7 +285,7 @@ const App: React.FC = () => {
                 <div className="space-y-5">
                   <input name="user" type="text" className="w-full bg-slate-950 border border-slate-800 rounded-2xl p-4 text-white" placeholder="ID de Acesso" required />
                   <input name="pass" type="password" className="w-full bg-slate-950 border border-slate-800 rounded-2xl p-4 text-white" placeholder="Token" required />
-                  <button type="submit" className="w-full bg-white text-slate-950 font-black py-4 rounded-2xl transition-all">Validar Acesso</button>
+                  <button type="submit" className="w-full bg-white text-slate-950 font-black py-4 rounded-2xl transition-all hover:bg-slate-200 shadow-lg shadow-white/10">Validar Acesso</button>
                 </div>
               </form>
             </div>
@@ -308,7 +319,7 @@ const App: React.FC = () => {
                     <thead><tr className="text-slate-500 text-[10px] font-bold uppercase border-b border-slate-800"><th className="pb-4">Membro</th><th className="pb-4">Login/Email</th><th className="pb-4">Adesão</th><th className="pb-4 text-right">Ação</th></tr></thead>
                     <tbody>
                       {members.map(m => (
-                        <tr key={m.id} className="border-b border-slate-900"><td className="py-4 font-bold text-sm">{m.name}</td><td className="py-4 text-sm text-slate-400">@{m.username} / {m.email}</td><td className="py-4 text-xs text-slate-500">{m.joinedAt}</td><td className="py-4 text-right"><button onClick={() => setMembers(members.filter(mem => mem.id !== m.id))} className="text-red-500 p-2"><Trash2 className="w-4 h-4" /></button></td></tr>
+                        <tr key={m.id} className="border-b border-slate-900"><td className="py-4 font-bold text-sm">{m.name}</td><td className="py-4 text-sm text-slate-400">@{m.username} / {m.email}</td><td className="py-4 text-xs text-slate-500">{m.joinedAt}</td><td className="py-4 text-right"><button onClick={() => setMembers(members.filter(mem => mem.id !== m.id))} className="text-red-500 p-2 hover:bg-red-500/10 rounded-lg transition-colors"><Trash2 className="w-4 h-4" /></button></td></tr>
                       ))}
                     </tbody>
                   </table>
@@ -377,9 +388,12 @@ const App: React.FC = () => {
 
       {/* Footer */}
       <footer className="py-12 border-t border-slate-900/50 text-center bg-slate-950/50">
-        <p className="text-slate-600 text-[10px] font-black uppercase tracking-[0.3em] mb-4">Base TI OSINT Platform</p>
+        <p className="text-slate-600 text-[10px] font-black uppercase tracking-[0.3em] mb-4">OSINT Terminal Platform</p>
+        <div className="flex justify-center items-center gap-6 mb-4">
+           <span className="text-[9px] text-slate-700 font-bold uppercase tracking-widest">v{APP_VERSION}</span>
+        </div>
         {!isLoggedIn ? (
-          <button onClick={() => setView('admin-login')} className="text-slate-700 hover:text-sky-500 transition-colors text-[10px] font-bold uppercase tracking-widest"><Lock className="w-3 h-3 inline mr-2" /> Acesso Restrito</button>
+          <button onClick={() => setView('admin-login')} className="text-slate-700 hover:text-sky-500 transition-colors text-[10px] font-bold uppercase tracking-widest flex items-center mx-auto"><Lock className="w-3 h-3 mr-2" /> Acesso Restrito</button>
         ) : (
           <span className="text-sky-500 text-[10px] font-bold uppercase tracking-widest">Painel Administrativo Ativo</span>
         )}
