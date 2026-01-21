@@ -1,5 +1,5 @@
 {
-  "name": "Base TI - OSINT Terminal",
-  "description": "Uma plataforma moderna e centralizada para ferramentas de Inteligência de Fontes Abertas (OSINT)",
+  "name": "OSINT Terminal",
+  "description": "Terminal Operacional de Inteligência - Plataforma centralizada para ferramentas de Inteligência de Fontes Abertas",
   "requestFramePermissions": []
 }
