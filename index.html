@@ -7,9 +7,10 @@
     <meta name="theme-color" content="#020617">
     <title>OSINT Terminal | Base TI</title>
     
-    <!-- Cache Optimization Tags -->
-    <meta http-equiv="Cache-Control" content="public, max-age=31536000, immutable">
-    <meta http-equiv="Pragma" content="cache">
+    <!-- Anti-Cache for Entry Point -->
+    <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+    <meta http-equiv="Pragma" content="no-cache">
+    <meta http-equiv="Expires" content="0">
     
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -48,10 +49,24 @@
 <body class="cyber-grid">
     <div id="root"></div>
     <script>
+      let refreshing = false;
       if ('serviceWorker' in navigator) {
+        // Detecta quando o novo service worker assume o controle e recarrega a página
+        navigator.serviceWorker.addEventListener('controllerchange', () => {
+          if (refreshing) return;
+          window.location.reload();
+          refreshing = true;
+        });
+
         window.addEventListener('load', () => {
           navigator.serviceWorker.register('sw.js')
-            .then(reg => console.log('[Worker] Operacional'))
+            .then(reg => {
+              console.log('[Worker] Operacional');
+              // Verifica atualizações periodicamente
+              setInterval(() => {
+                reg.update();
+              }, 60000 * 5); // A cada 5 minutos
+            })
             .catch(err => console.error('[Worker] Falha na inicialização:', err));
         });
       }

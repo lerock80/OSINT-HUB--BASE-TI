@@ -1,7 +1,6 @@
-
 import { Tool, Category } from './types';
 
-export const APP_VERSION = '1.0.2'; // Incrementado para aplicar reordenação de categorias
+export const APP_VERSION = '1.0.3'; // Incrementado para forçar atualização de cache local
 
 export const INITIAL_CATEGORIES: Category[] = [
   // Brasil no topo
