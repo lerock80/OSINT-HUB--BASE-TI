@@ -323,7 +323,7 @@ const App: React.FC = () => {
       {/* Main Content Area - Fixed Viewport */}
       <div className="flex-1 flex flex-col md:flex-row container mx-auto px-6 py-4 gap-6 overflow-hidden">
         
-        {/* Sidebar for Home View */}
+        {/* Sidebar for Desktop */}
         {view === 'home' && (
           <aside className="hidden md:flex flex-col w-56 lg:w-60 shrink-0 h-full overflow-hidden">
             <div className="flex items-center gap-2 mb-2 px-1 shrink-0">
@@ -404,6 +404,45 @@ const App: React.FC = () => {
                     className={`w-full rounded-xl py-2.5 pl-10 pr-4 text-xs outline-none transition shadow-lg border ${isDarkMode ? 'bg-slate-900/50 border-slate-800 text-white focus:ring-4 focus:ring-sky-500/10' : 'bg-white border-slate-200 text-slate-900 focus:ring-4 focus:ring-[#B02B2C]/5'}`}
                     value={searchQuery} onChange={(e) => setSearchQuery(e.target.value)}
                   />
+                </div>
+
+                {/* Mobile Categories - Horizontal Scroll */}
+                <div className="md:hidden mt-6 overflow-hidden">
+                  <div className="flex items-center gap-2 mb-3 px-1">
+                    <Layers className={`w-3 h-3 ${isDarkMode ? 'text-sky-500' : 'text-[#B02B2C]'}`} />
+                    <h2 className="text-[8px] font-black uppercase tracking-[0.3em] opacity-50">Explorar Categorias</h2>
+                  </div>
+                  <div className="flex overflow-x-auto gap-2 pb-4 scrollbar-hide -mx-1 px-1">
+                    <button 
+                      onClick={() => setActiveCategory('all')} 
+                      className={`whitespace-nowrap flex items-center gap-2 px-4 py-2.5 rounded-full text-[9px] font-black uppercase border transition-all shadow-sm ${
+                        activeCategory === 'all' 
+                          ? (isDarkMode ? 'bg-sky-500 border-sky-400 text-white' : 'bg-[#B02B2C] border-[#B02B2C] text-white') 
+                          : (isDarkMode ? 'bg-slate-900 border-slate-800 text-slate-500' : 'bg-white border-slate-200 text-slate-500')
+                      }`}
+                    >
+                      <span>Todos</span>
+                      <span className={`px-1.5 py-0.5 rounded-md text-[8px] ${activeCategory === 'all' ? 'bg-black/20' : 'bg-slate-100/10'}`}>
+                        {categoryCounts.all}
+                      </span>
+                    </button>
+                    {categories.map(c => (
+                      <button 
+                        key={c.id} 
+                        onClick={() => setActiveCategory(c.id)} 
+                        className={`whitespace-nowrap flex items-center gap-2 px-4 py-2.5 rounded-full text-[9px] font-black uppercase border transition-all shadow-sm ${
+                          activeCategory === c.id 
+                            ? (isDarkMode ? 'bg-sky-500 border-sky-400 text-white' : 'bg-[#B02B2C] border-[#B02B2C] text-white') 
+                            : (isDarkMode ? 'bg-slate-900 border-slate-800 text-slate-500' : 'bg-white border-slate-200 text-slate-500')
+                        }`}
+                      >
+                        <span>{c.name}</span>
+                        <span className={`px-1.5 py-0.5 rounded-md text-[8px] ${activeCategory === c.id ? 'bg-black/20 text-sky-200' : 'bg-slate-100/10'}`}>
+                          {categoryCounts[c.id] || 0}
+                        </span>
+                      </button>
+                    ))}
+                  </div>
                 </div>
               </div>
 
